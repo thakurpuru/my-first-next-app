@@ -3,7 +3,7 @@
 import React, { useState, useMemo , useEffect, useCallback, useRef} from 'react';
 import { StockHolding } from '../types/portfolio';
 import { INITIAL_HOLDINGS } from '../data/initialHolding'; 
-import { fetchBatchQuotes } from '../api/stocks/batch/route'; 
+import {fetchBatchQuotes} from '../services/apiclient'; 
 interface SectorSummary {
   sector: string;
   stocks: StockHolding[];

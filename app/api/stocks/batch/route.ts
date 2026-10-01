@@ -1,4 +1,7 @@
 import { StockHolding } from "@/app/types/portfolio";
+import { NextResponse } from 'next/server';
+import YahooFinance from 'yahoo-finance2';
+
 
 interface StockData {
   symbol: string;
@@ -8,17 +11,57 @@ interface StockData {
   changePercent?: number;
 }
 
-export async function fetchBatchQuotes(holdings: StockHolding[]): Promise<Record<string, StockData>> {
-  const results: Record<string, StockData> = {};
+export async function GET(request: Request){
 
-  await Promise.all(
-    holdings.map(async (h) => {
-      const sym = `${h.symbol}.NS`;
-      const response = await fetch(`api/stocks/${sym}`);
-      const quote = await response.json();
-      results[h.symbol] = quote.data;
-    })
-  );
+try {
+    const { searchParams } = new URL(request.url);
+    const symbolsParam = searchParams.get('symbols');
+    if(!symbolsParam) {
+      return NextResponse.json(
+        { success: false, error: 'Query parameter "symbols" is required' },
+        { status: 400 }
+      );
+    }
+    const symbols = symbolsParam
+      .split(",")
+      .map((symbol) => symbol.trim())
+      .filter(Boolean);
 
-  return results;
+    if (symbols.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No valid symbols provided",
+        },
+        { status: 400 }
+      );
+    }
+    const yahooFinance = new YahooFinance();
+    const quotes = await yahooFinance.quote(symbols);
+    const results: Record<string, StockData> = {};
+
+    const quoteList = Array.isArray(quotes) ? quotes : [quotes];
+
+    quoteList.forEach((quote) => {
+      if (quote && quote.symbol) {
+        results[quote.symbol] = {
+          symbol: quote.symbol,
+          price: quote.regularMarketPrice ?? 0,
+          currency: quote.currency ?? 'INR',
+          change: quote.regularMarketChange ?? 0,
+          changePercent: quote.regularMarketChangePercent ?? 0,
+        };
+      }
+    });
+    return NextResponse.json({
+        success: true,
+        data: results,
+    });
+  }catch (error) {
+    console.error('Error fetching batch quotes:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch batch quotes' },
+      { status: 500 }
+    );
+  }
 }

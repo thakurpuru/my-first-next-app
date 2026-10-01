@@ -20,48 +20,10 @@ export interface StockHolding {
   dataSource?: 'live' | 'cache' | 'simulated';
 }
 
-export interface CalculatedHolding extends StockHolding {
-  investment: number;        // Purchase Price × Quantity
-  presentValue: number;      // CMP × Quantity
-  gainLoss: number;          // Present Value - Investment
-  gainLossPercentage: number;// ((Present Value - Investment) / Investment) * 100
-  portfolioWeight: number;   // (Investment / Total Investment) * 100
-  portfolioPvWeight: number; // (Present Value / Total Present Value) * 100
-  dayGainLoss?: number;      // (CMP - previousClose) * Quantity
-}
 
-export interface SectorSummary {
-  sector: string;
-  totalInvestment: number;
-  totalPresentValue: number;
-  totalGainLoss: number;
-  gainLossPercentage: number;
-  stockCount: number;
-  holdings: CalculatedHolding[];
-  portfolioWeight: number;
-}
 
-export interface PortfolioTotals {
-  totalInvestment: number;
-  totalPresentValue: number;
-  totalGainLoss: number;
-  totalGainLossPercentage: number;
-  dayGainLoss: number;
-  dayGainLossPercentage: number;
-  topPerformingSector: string;
-  profitableStocksCount: number;
-  lossStocksCount: number;
-  totalStocksCount: number;
-}
 
-export interface LiveQuoteResponse {
-  symbol: string;
-  cmp: number;
-  previousClose: number;
-  change: number;
-  changePercent: number;
-  peRatio: number | null;
-  latestEarnings: string | null;
-  timestamp: number;
-  source: 'live' | 'cache' | 'simulated';
-}
+
+
+
+
